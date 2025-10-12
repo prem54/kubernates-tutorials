@@ -196,3 +196,9 @@ spec:
           hostPath:
             path: "/etc/ssl/certs/ca-bundle.crt"
 ```
+
+## Check logs after applying above file.
+'''bash
+kubectl logs -l app=cluster-autoscaler -n kube-system -f
+kubectl get events
+'''
