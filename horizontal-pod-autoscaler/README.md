@@ -198,7 +198,7 @@ spec:
 ```
 
 ## Check logs after applying above file.
-'''bash
+```bash
 kubectl logs -l app=cluster-autoscaler -n kube-system -f
 kubectl get events
-'''
+```
