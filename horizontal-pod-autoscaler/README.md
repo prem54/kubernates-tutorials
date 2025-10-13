@@ -4,8 +4,10 @@ Enable scale-in and scale-out od cluster nodes.
 
 ## Cluster Auto-Scaling group or Node group must have following labels else cluster autoscaler won't be able to discover your cluster.
 
-k8s.io/cluster-autoscaler/enabled = true \n
+```text
+k8s.io/cluster-autoscaler/enabled = true
 k8s.io/cluster-autoscaler/<CLUSTER-NAME> = owned
+```
 
 Cluster Auto-Scaling group must have different minimum and maximum capacity. Autoscaler will only adjust desired capacity based on the load and maximum capacity defined.
 
