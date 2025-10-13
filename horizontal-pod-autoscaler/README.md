@@ -1,13 +1,59 @@
-# Horizontal Pod Autoscaler - HPA
+# Cluster Autoscaler
 
-Enable scale-in and scale-out for pods.
+Enable scale-in and scale-out od cluster nodes.
 
-## Installation
+## Cluster Auto-Scaling group or Node group must have following labels else cluster autoscaler won't be able to discover your cluster.
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
+k8s.io/cluster-autoscaler/enabled = true
+k8s.io/cluster-autoscaler/<CLUSTER-NAME> = owned
 
-```bash
-pip install foobar
+Cluster Auto-Scaling group must have different minimum and maximum capacity. Autoscaler will only adjust desired capacity based on the load and maximum capacity defined.
+
+## IAM Role
+
+Create a Web Identity role
+
+### select the Identoty Provider as OIDC provide for EKS cluster
+Identity provider = oidc.eks.us-east-1.amazonaws.com/id/A6DC4B843F451D7FA95575D6F3844A7F:aud
+
+### Audience as sts.amazonaws.com
+Audience = sts.amazonaws.com
+
+### Attach IAM policy with following permissions
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "autoscaling:DescribeAutoScalingGroups",
+                "autoscaling:DescribeAutoScalingInstances",
+                "autoscaling:DescribeLaunchConfigurations",
+                "autoscaling:DescribeScalingActivities",
+                "ec2:DescribeImages",
+                "ec2:DescribeInstanceTypes",
+                "ec2:DescribeLaunchTemplateVersions",
+                "ec2:GetInstanceTypesFromInstanceRequirements",
+                "eks:DescribeNodegroup"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "autoscaling:SetDesiredCapacity",
+                "autoscaling:TerminateInstanceInAutoScalingGroup"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
+    ]
+}
 ```
 
 ## cluster-autoscaler.yaml
