@@ -1,25 +1,29 @@
 # Cluster Autoscaler
 
-Enable scale-in and scale-out od cluster nodes.
+Setup cluster autoscaler to scale-in and scale-out cluster nodes.
 
-## Cluster Auto-Scaling group or Node group must have following labels else cluster autoscaler won't be able to discover your cluster.
+## Lable to get cluster discovered by autoscaler
+
+Cluster Auto-Scaling group or Node group must have following labels else cluster autoscaler won't be able to discover your cluster.
 
 ```text
 k8s.io/cluster-autoscaler/enabled = true
 k8s.io/cluster-autoscaler/<CLUSTER-NAME> = owned
 ```
 
-Cluster Auto-Scaling group must have different minimum and maximum capacity. Autoscaler will only adjust desired capacity based on the load and maximum capacity defined.
+Cluster Auto-Scaling group must have difference in minimum and maximum capacity. Autoscaler will only adjust desired capacity based on the load and maximum capacity defined.
 
 ## IAM Role
 
 Create a Web Identity role
 
-### select the Identoty Provider as OIDC provide for EKS cluster
+select the Identoty Provider as OIDC provide for EKS cluster
+```text
 Identity provider = oidc.eks.us-east-1.amazonaws.com/id/A6DC4B843F451D7FA95575D6F3844A7F:aud
+```
 
-### Audience as sts.amazonaws.com
-Audience = sts.amazonaws.com
+Audience as sts.amazonaws.com
+```Audience = sts.amazonaws.com```
 
 ### Attach IAM policy with following permissions
 
