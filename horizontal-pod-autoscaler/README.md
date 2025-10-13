@@ -23,7 +23,9 @@ Identity provider = oidc.eks.us-east-1.amazonaws.com/id/A6DC4B843F451D7FA95575D6
 ```
 
 Audience as sts.amazonaws.com
-```Audience = sts.amazonaws.com```
+```
+Audience = sts.amazonaws.com
+```
 
 ### Attach IAM policy with following permissions
 
