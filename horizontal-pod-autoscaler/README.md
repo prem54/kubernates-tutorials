@@ -18,8 +18,8 @@ Cluster Auto-Scaling group must have difference in minimum and maximum capacity.
 Create a Web Identity role
 
 select the Identoty Provider as OIDC provide for EKS cluster
-```text
-Identity provider = oidc.eks.us-east-1.amazonaws.com/id/A6DC4B843F451D7FA95575D6F3844A7F:aud
+```
+Identity provider = oidc.eks.us-east-1.amazonaws.com/id/A6DC4B843F451D7FA95575D6F3844A8F:aud
 ```
 
 Audience as sts.amazonaws.com
@@ -27,8 +27,7 @@ Audience as sts.amazonaws.com
 Audience = sts.amazonaws.com
 ```
 
-### Attach IAM policy with following permissions
-
+Attach IAM policy with following permissions
 ```json
 {
     "Version": "2012-10-17",
@@ -63,9 +62,35 @@ Audience = sts.amazonaws.com
     ]
 }
 ```
+Modify the Trust relationship.
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Federated": "arn:aws:iam::AWS-ACCOUNT-ID:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/A6DC4B843F451D7FA95575D6F3844A8F"
+            },
+            "Action": "sts:AssumeRoleWithWebIdentity",
+            "Condition": {
+                "StringEquals": {
+                    "oidc.eks.us-east-1.amazonaws.com/id/A6DC4B843F451D7FA95575D6F3844A8F:sub": "system:serviceaccount:kube-system:cluster-autoscaler"
+                }
+            }
+        }
+    ]
+}
+```
+## Apply cluster autoscaler manifest file.
 
-## cluster-autoscaler.yaml
+Modify following in autoscaler manifest file.
+Service Account Role ARN: Add the IAM role ARN created above.
+Service Account Name: Matches with the name provided in trust relationship created above.
+Cluster autoscaler image tag matches with the EKS cluster version.
+Add labels mentioned above for node group discovery in container section.
 
+cluster-autoscaler.yaml
 ```yaml
 ---
 apiVersion: v1
@@ -75,7 +100,7 @@ metadata:
     k8s-addon: cluster-autoscaler.addons.k8s.io
     k8s-app: cluster-autoscaler
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::846072899073:role/AmazonEKSClusterAutoscalerRole
+    eks.amazonaws.com/role-arn: <EKS-CLUSTER-AUTOSCALER-ROLE-ARN>
   name: cluster-autoscaler
   namespace: kube-system
 ---
@@ -233,7 +258,7 @@ spec:
             - --cloud-provider=aws
             - --skip-nodes-with-local-storage=false
             - --expander=least-waste
-            - --node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/TLP-PRE-PROD-EKS-cluster
+            - --node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/<EKS-CLUSTER-NAME>
           volumeMounts:
             - name: ssl-certs
               mountPath: /etc/ssl/certs/ca-certificates.crt # /etc/ssl/certs/ca-bundle.crt for Amazon Linux Worker Nodes
